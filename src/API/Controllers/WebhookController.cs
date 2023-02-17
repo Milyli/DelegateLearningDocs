@@ -22,7 +22,7 @@ namespace DelegateLearningDocs.Controllers
         [Route("hangfire/slackmessage")]
         public IActionResult HangfireSlackMessageWebhook(WebhookStep step)
         {
-            var message = $"Hey there! I'm a background processed message using Hangfire! This request was from the {step.WorkflowName} located on {step.RelativityInstanceURL}. Robots are cool! Beep boop beep :robot_face:";
+            var message = $"Hey there! I'm a background processed message using Hangfire! This request was from the {step.WorkflowName} workflow located on {step.RelativityInstanceURL}. Robots are cool! Beep boop beep :robot_face:";
 
             try
             {
@@ -66,7 +66,7 @@ namespace DelegateLearningDocs.Controllers
         [Route("200")]
         public IActionResult Delegate200Webhook(WebhookStep step)
         {
-            return Ok($"This is a 200 response. The request body values were: {step.WorkflowName}, {step.WorkspaceId}, {step.RelativityInstanceURL}, {step.InstanceId}");
+            return Ok($"This is a 200 response. The request body values were: {step.WorkflowName}, {step.WorkspaceId}, {step.RelativityInstanceURL}, {step.InstanceId}, {step.FriendlyInstanceName}");
         }
 
         [HttpPost]
