@@ -62,6 +62,13 @@ namespace DelegateLearningDocs.Controllers
         }
 
         [HttpPost]
+        [Route("200")]
+        public IActionResult Delegate200Webhook()
+        {
+            return Ok("This is a 200 response.");
+        }
+
+        [HttpPost]
         [Route("400")]
         public IActionResult Delegate400Webhook()
         {
