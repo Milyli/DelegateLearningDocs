@@ -2,6 +2,6 @@
 {
     public interface ISlackMessageQueueManager
     {
-        void EnqueueSlackMessage(string slackEndpoint, string message);
+        void EnqueueSlackMessage(string slackEndpoint, string message, IHttpClientFactory httpClientFactory);
     }
 }

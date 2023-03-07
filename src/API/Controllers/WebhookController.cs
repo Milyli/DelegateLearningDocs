@@ -1,5 +1,6 @@
 ﻿using DelegateLearningDocs.Hangfire.QueueManagers;
 using DelegateLearningDocs.Models;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using System.Text;
 
@@ -11,11 +12,13 @@ namespace DelegateLearningDocs.Controllers
     {
         private readonly IConfiguration _configuration;
         private readonly ISlackMessageQueueManager _slackMessageQueueManager;
+        private readonly IHttpClientFactory _httpClientFactory;
 
-        public WebhookController(IConfiguration configuration, ISlackMessageQueueManager slackMessageQueueManager)
+        public WebhookController(IConfiguration configuration, ISlackMessageQueueManager slackMessageQueueManager, IHttpClientFactory httpClientFactory)
         {
             _configuration = configuration;
             _slackMessageQueueManager = slackMessageQueueManager;
+            _httpClientFactory = httpClientFactory;
         }
 
         [HttpPost]
@@ -26,7 +29,7 @@ namespace DelegateLearningDocs.Controllers
 
             try
             {
-                _slackMessageQueueManager.EnqueueSlackMessage(_configuration.GetValue<string>("SlackEndpoint"), message);
+                _slackMessageQueueManager.EnqueueSlackMessage(_configuration.GetValue<string>("SlackEndpoint"), message, _httpClientFactory);
             }
             catch (Exception ex)
             {
@@ -45,20 +48,18 @@ namespace DelegateLearningDocs.Controllers
             var contentJson = System.Text.Json.JsonSerializer.Serialize(contentObject);
             var content = new StringContent(contentJson, Encoding.UTF8, "application/json");
 
-            using (var client = new HttpClient())
-            {
-                var result = await client.PostAsync(_configuration.GetValue<string>("SlackEndpoint"), content);
-                var resultContent = await result.Content.ReadAsStringAsync();
+            var httpClient = _httpClientFactory.CreateClient();
+            var httpResponseMessage = await httpClient.PostAsync(_configuration.GetValue<string>("SlackEndpoint"), content);
+            var httpResponseContent = await httpResponseMessage.Content.ReadAsStringAsync();
 
-                if (!result.IsSuccessStatusCode)
-                {
-                    return BadRequest(resultContent);
-                    //Add logging
-                }
-                else
-                {
-                    return Ok(resultContent);
-                }
+            if (!httpResponseMessage.IsSuccessStatusCode)
+            {
+                return BadRequest(httpResponseContent);
+                //Add logging
+            }
+            else
+            {
+                return Ok(httpResponseContent);
             }
         }
 

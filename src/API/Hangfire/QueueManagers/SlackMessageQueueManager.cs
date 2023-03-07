@@ -5,9 +5,9 @@ namespace DelegateLearningDocs.Hangfire.QueueManagers
 {
     public class SlackMessageQueueManager : ISlackMessageQueueManager
     {
-        public void EnqueueSlackMessage(string slackEndpoint, string message)
+        public void EnqueueSlackMessage(string slackEndpoint, string message, IHttpClientFactory httpClientFactory)
         {
-            BackgroundJob.Enqueue<ISlackMessageTask>(x => x.SendDelegateWebhookSlackMessage(slackEndpoint, message));
+            BackgroundJob.Enqueue<ISlackMessageTask>(x => x.SendDelegateWebhookSlackMessage(slackEndpoint, message, httpClientFactory));
         }
     }
 }
