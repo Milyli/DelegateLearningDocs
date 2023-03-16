@@ -32,7 +32,7 @@ namespace DelegateLearningDocs.Controllers
             var workflowStartJson = System.Text.Json.JsonSerializer.Serialize(workflowStartObject);
             var requestBody = new StringContent(workflowStartJson, Encoding.UTF8, "application/json");
 
-            //Create an unsecure http client that ignores dev certifications
+            //Create an unsecure http client that ignores dev environment certificates; change this to default http client factory if your certificate is trusted
             var httpClient = _httpClientFactory.CreateClient("UnsecureRelativityClient");
             httpClient.BaseAddress = new Uri(_configuration.GetValue<string>("RelativityBaseUri"));
             httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
@@ -45,6 +45,35 @@ namespace DelegateLearningDocs.Controllers
             var url = $"Relativity/CustomPages/66e2c574-c9d9-46f5-8581-98db7c016464/api/v1/{workflowStart.WorkspaceId}/workflow/start";
 
             var httpResponseMessage = await httpClient.PostAsync(url, requestBody);
+            var httpResponseContent = await httpResponseMessage.Content.ReadAsStringAsync();
+
+            if (!httpResponseMessage.IsSuccessStatusCode)
+            {
+                return BadRequest(httpResponseContent);
+            }
+            else
+            {
+                return Ok(httpResponseContent);
+            }
+        }
+
+        [HttpPost]
+        [Route("workflowstatus")]
+        public async Task<IActionResult> CheckDelegateWorkflowStatus(WorkflowStatus workflowStatus)
+        {
+            //Create an unsecure http client that ignores dev environment certificates; change this to default http client factory if your certificate is trusted
+            var httpClient = _httpClientFactory.CreateClient("UnsecureRelativityClient");
+            httpClient.BaseAddress = new Uri(_configuration.GetValue<string>("RelativityBaseUri"));
+            httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            httpClient.DefaultRequestHeaders.Add("X-CSRF-Header", "-");
+
+            //Get the bearer token from the Relativity token service then create authorization header
+            var token = await GetBearerToken();
+            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            var url = $"Relativity/CustomPages/66e2c574-c9d9-46f5-8581-98db7c016464/api/v1/{workflowStatus.WorkspaceId}/workflow/status?workspaceId={workflowStatus.WorkspaceId}&workflowName={workflowStatus.WorkflowName}";
+
+            var httpResponseMessage = await httpClient.GetAsync(url);
             var httpResponseContent = await httpResponseMessage.Content.ReadAsStringAsync();
 
             if (!httpResponseMessage.IsSuccessStatusCode)
