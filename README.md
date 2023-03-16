@@ -49,7 +49,7 @@ Below we've provided details for each of the five different configuration settin
 |--|--|
 | ConnectionStrings:Default | This sample project uses Hangfire and the Hangfire dashboard to show how to spin off long-running processes without blocking Delegate. Hangfire requires a database. The project will not run without this setting configured. For early local development, utilizing LocalDB is recommended: `Server=(localdb)\\mssqllocaldb;Database=[INPUTDATABASENAME];Trusted_Connection=True;MultipleActiveResultSets=true` |
 | SlackEndpoint| We'll cover setting up a Slack endpoint to deliver messages to a slack channel. The project will run without this setting, but the two Slack Webhooks will not work. |
-| RelativityBaseUri | This is the base address for your Relativity instance with the trailing `/Relativity`. For example, `http://RELATIVITYDEVVM/`. |
+| RelativityBaseUri | This is the base address for your Relativity instance without the trailing `/Relativity`. For example, `http://RELATIVITYDEVVM/`. |
 | RelativityOAuthClientId | Delegate's API is hosted on the Delegate custom page. To make API calls to custom pages from outside Relativity, an OAuth2 client is required. For more information on setting one up, please take a look at the [Relativity Documentation](https://help.relativity.com/Server2022/Content/Relativity/Authentication/OAuth2_clients.htm).  |
 | RelativityOAuthClientSecret | The Client Secret for your Relativity OAuth2 client. |
 
