@@ -29,7 +29,8 @@ namespace DelegateLearningDocs.Controllers
 
             try
             {
-                _slackMessageQueueManager.EnqueueSlackMessage(_configuration.GetValue<string>("SlackEndpoint"), message, _httpClientFactory);
+                var httpClient = _httpClientFactory.CreateClient("");
+                _slackMessageQueueManager.EnqueueSlackMessage(_configuration.GetValue<string>("SlackEndpoint"), message, httpClient);
             }
             catch (Exception ex)
             {

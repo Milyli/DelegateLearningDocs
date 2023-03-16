@@ -1,7 +1,9 @@
+using DelegateLearningDocs.Data;
 using DelegateLearningDocs.Hangfire.QueueManagers;
 using DelegateLearningDocs.Hangfire.Tasks;
 using Hangfire;
 using Hangfire.SqlServer;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,6 +25,10 @@ builder.Services.AddSingleton<ISlackMessageTask, SlackMessageTask>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+// Configure EF Context
+builder.Services.AddDbContext<DelegateLearningContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
+
+// Add Hangfire
 builder.Services.AddHangfire(configuration => configuration
         .SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
         .UseSimpleAssemblyNameTypeSerializer()
@@ -51,5 +57,15 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+
+// Initialize and Clean-up Databases
+
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    DelegateLearningContextInitializer.Initialize(services);
+}
+
+app.UseHangfireDashboard("/hangfire");
 
 app.Run();
