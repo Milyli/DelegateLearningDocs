@@ -143,11 +143,10 @@ The IsRestart property is optional and is false by default. Setting the value to
 
 ```
 [{
-      success: true,
-      Errors: [],
-      workflowId,
-      startedOn,
-      startedStep,
+      Success: true,
+      Error: "",
+      WorkflowId,
+      ExecutedOn,
       StatusUrl
 },
 {
@@ -161,7 +160,7 @@ Workflow status can be checked by submitting a GET request to the workflow statu
 
 ### URL
 
-`<host>/Relativity/CustomPages/66e2c574-c9d9-46f5-8581-98db7c016464/api/v1/{WorkspaceId}/workflow/status?workspaceId={WorkspaceId}&workflowName={WorkflowName}`
+`<host>/Relativity/CustomPages/66e2c574-c9d9-46f5-8581-98db7c016464/api/v1/{WorkspaceId}/workflow/status?workflowName={WorkflowName}`
 
 ### Verb
 
@@ -179,18 +178,70 @@ GET
 
 ```
 [{
-   success: false,
-   workflowId = {workflowId},
-   startedOn = null,
-   StartedStep = null,
-   StatusUrl = null
-   Errors: [error1, error2],
-   
+   WorkflowId = {workflowId},
+   ExecutionId = null
+   CurrentStatus = ""
+   ExecutedOn = null,
+   CompletedOn = null,
+   Duration = ""
+   Currentstep: ""   
 },
 {
    ...
 }]
 ```
+
+## Resume Workflow
+
+Workflows can be resumed by submitting a POST request to the workflow start endpoint. Workflows are resumed by name. If more than one workflow exists with the name, all workflows matching that name will be resumed.
+Workflows that are in a completed or unrun state will be started.
+
+### URL
+`<host>/Relativity/CustomPages/66e2c574-c9d9-46f5-8581-98db7c016464/api/v1/{WorkspaceId}/workflow/resume`
+
+### Verb
+
+POST
+
+### Headers
+
+| Header | Value |
+|--|--|
+| Content-Type | application/json |
+| X-CSRF-Header | - |
+| Authorization | Bearer [token] |
+
+### Request Body
+
+```
+{
+   "workflowName": "Name",
+   "StartLocation": 0
+}
+```
+
+The StartLocation property determines how the workflow will be resumed. The valid `StartLocation`s correspond to the following values:
+
+| StartLocation | Value | Description |
+|--|--|--|
+| 0 | Restart from Beginning | Restarts the workflow from the first step |
+| 1 | Restart from Current Step | Restarts the workflow at its current step, re-running the step it was paused on |
+| 2 | Resume at Next Step | Resumes the workflow on the step following the step it was paused on |
+
+### Response Body
+
+```
+[{
+      Success: true,
+      Error: "",
+      WorkflowId,
+      ExecutedOn,
+      StatusUrl
+},
+{
+   ...
+}]
+``` 
 
 # Webhook Step
 
