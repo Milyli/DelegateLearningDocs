@@ -86,6 +86,40 @@ namespace DelegateLearningDocs.Controllers
             }
         }
 
+        [HttpPost]
+        [Route("workflowresume")]
+        public async Task<IActionResult> ResumeDelegateWorkflow(WorkflowResume workflowResume)
+        {
+            //Create Json request body Delegate expects to Resume a workflow
+            var workflowResumeObject = new { workflowName = workflowResume.WorkflowName, StartLocation = workflowResume.StartLocation };
+            var workflowResumeJson = System.Text.Json.JsonSerializer.Serialize(workflowResumeObject);
+            var requestBody = new StringContent(workflowResumeJson, Encoding.UTF8, "application/json");
+
+            //Create an unsecure http client that ignores dev environment certificates; change this to default http client factory if your certificate is trusted
+            var httpClient = _httpClientFactory.CreateClient("UnsecureRelativityClient");
+            httpClient.BaseAddress = new Uri(_configuration.GetValue<string>("RelativityBaseUri"));
+            httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            httpClient.DefaultRequestHeaders.Add("X-CSRF-Header", "-");
+
+            //Get the bearer token from the Relativity token service then create authorization header
+            var token = await GetBearerToken();
+            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            var url = $"Relativity/CustomPages/66e2c574-c9d9-46f5-8581-98db7c016464/api/v1/{workflowResume.WorkspaceId}/workflow/resume";
+
+            var httpResponseMessage = await httpClient.PostAsync(url, requestBody);
+            var httpResponseContent = await httpResponseMessage.Content.ReadAsStringAsync();
+
+            if (!httpResponseMessage.IsSuccessStatusCode)
+            {
+                return BadRequest(httpResponseContent);
+            }
+            else
+            {
+                return Ok(httpResponseContent);
+            }
+        }
+
         private async Task<string> GetBearerToken()
         {
             var formParameters = new Dictionary<string, string>
